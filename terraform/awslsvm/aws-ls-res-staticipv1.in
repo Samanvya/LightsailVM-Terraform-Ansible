@@ -1,0 +1,30 @@
+resource "aws_lightsail_static_ip" "devops" {
+  name = "${var.staticip}"
+}
+resource "aws_lightsail_static_ip_attachment" "devops" {
+  static_ip_name = "${aws_lightsail_static_ip.devops.name}"
+  instance_name = "${aws_lightsail_instance.devops.name}"
+   provisioner "remote-exec" {
+  connection {
+    timeout = "5m"
+    user = "ubuntu"
+    host = "${aws_lightsail_static_ip.devops.ip_address}"
+    private_key = "${file("~/.ssh/id_rsa")}"
+    }
+    inline = [
+      "touch hello",
+      "sudo apt update -y",
+      "echo ************************apt update************* >> hello",
+      #"sudo apt upgrade -y",
+      #RUN apt install -y less curl git ssh
+      #"sudo apt update -y && sudo apt-get upgrade -y && sudo apt-get install -y less curl ssh",
+      #Docker
+      "sudo apt install apt-transport-https ca-certificates curl software-properties-common -y",
+      "sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
+      "sudo add-apt-repository 'deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable'",
+      "sudo apt update -y",
+      "sudo apt install docker-ce -y",
+      "sudo usermod -aG docker ubuntu",
+      ]
+      }
+}
